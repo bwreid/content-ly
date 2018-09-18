@@ -11,11 +11,24 @@
 
   You'll want to use the Papa Parse library to read in the `.csv` file.
 */
+const fs = require('fs')
+const Papa = require('papaparse')
 function groupByEmotion (filePath) {
-  console.log(filePath)
+  const csv = fs.readFileSync(filePath, 'utf-8')
+  const { data } = Papa.parse(csv, { header: true })
+  
+  return data.reduce((acc, row) => {
+    const id = row['User Id']
+    const emotion = row.Emotion
+    return {
+      ...acc,
+      [emotion]: acc[emotion] ? acc[emotion].concat(id) : [ id ]
+    }
+  }, {})
 }
 
 const path = require('path')
 const log = path.join(__dirname, '..', 'data', 'log.csv')
 
-groupByEmotion(log)
+const result = groupByEmotion(log)
+console.log(result)
